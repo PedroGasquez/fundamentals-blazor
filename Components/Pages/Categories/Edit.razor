@@ -1,8 +1,10 @@
 @page "/categories/edit/{id:int}"
 @using Microsoft.EntityFrameworkCore
+@inject NavigationManager Navigation
 @inject ApplicationDbContext Context
+@rendermode InteractiveServer
 
-@if (Category is null)
+@if (Model is null)
 {
     <p class="text-center">
         <em>Categoria nao encontrada</em>
@@ -10,8 +12,21 @@
 }
 else
 {
-    <h1>@Category.Title (@Category.Id)</h1>
+    <h1>@Model.Title (@Model.Id)</h1>
+    <EditForm Model="@Model" OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
 
+        <div class="mb-3">
+            <label class="form-label">Nome da categoria</label>
+            <InputText @bind-Value="Model.Title" class="form-control"/>
+            <ValidationMessage For="@(() => Model.Title)"/> @*logo embaixo do campo*@
+        </div>
+
+        <button type="submit" class="btn btn-primary">Atualizar</button>
+        <a href="/categories">Cancelar</a>
+
+    </EditForm>
 }
 
 @code
@@ -19,13 +34,19 @@ else
     [Parameter]
     public int Id { get; set; }
 
-    public Category? Category { get; set; } = new();
+    public Category? Model { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
-        Category = await Context.Categories
+        Model = await Context.Categories
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == Id);
-          
+    }
+
+    public async Task OnValidSubmit()
+    {
+        Context.Categories.Update(Model);
+        await Context.SaveChangesAsync();
+        Navigation.NavigateTo("categories");
     }
 }
