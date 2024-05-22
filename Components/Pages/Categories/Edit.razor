@@ -1,0 +1,31 @@
+@page "/categories/edit/{id:int}"
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext Context
+
+@if (Category is null)
+{
+    <p class="text-center">
+        <em>Categoria nao encontrada</em>
+    </p>
+}
+else
+{
+    <h1>@Category.Title (@Category.Id)</h1>
+
+}
+
+@code
+{
+    [Parameter]
+    public int Id { get; set; }
+
+    public Category? Category { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Category = await Context.Categories
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == Id);
+          
+    }
+}
