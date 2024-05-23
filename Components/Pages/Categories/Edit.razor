@@ -1,6 +1,7 @@
 @page "/categories/edit/{id:int}"
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
+@attribute [Authorize]
 
 @if (Model is null)
 {
